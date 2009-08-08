@@ -41,51 +41,41 @@ def processParagraph(nodes: NodeSeq): String = {
 }
 
 def processBulletList(level: Int, nodes: NodeSeq): String = {
-  val padding = (0 to level).foldLeft("") { (str, _) => str + ' ' }
+  val padding = (0 until level).foldLeft("") { (str, _) => str + ' ' }
   
   var result = ""
   nodes foreach {
     case <list_item>{contents @ _*}</list_item> => {
-      contents match {
+      var prefix = padding + "* "
+      var first = true
+      
+      contents foreach {
         case <paragraph>{contents @ _*}</paragraph> => {
-          result += padding + "* "
+          if (!first)
+            result += '\n'
+          
+          result += prefix
           result += {
             val lines = processParagraph(contents).split('\n')
-            lines.take(lines.length - 1).mkString("\n" + padding + "  ")
+            lines.mkString("\n" + padding + "  ")
           } + '\n'
+          
+          prefix = padding + "  "
+          first = false
         }
         
-        case _ => {
-          contents(0) match {
-            case <paragraph>{contents @ _*}</paragraph> => {
-              result += padding + "* "
-              result += {
-                val lines = processParagraph(contents).split('\n')
-                lines.take(lines.length - 1).mkString("\n" + padding + "  ")
-              } + '\n'
-            }
-            
-            case x => error("Unrecognized fragment: " + x)
-          }
-          
-          result += '\n'
-          
-          contents drop 1 foreach {
-            case <paragraph>{contents @ _*}</paragraph> => {
-              result += padding + "  "
-              result += processParagraph(contents).split('\n').mkString("\n" + padding + "  ") + '\n'
-            }
-            
-            case x => error("Unrecognized fragment: " + x)
-          }
+        case <bullet_list>{contents @ _*}</bullet_list> => {
+          result += processBulletList(level + 4, contents)
         }
+        
+        case x => error("Unrecognized fragment: " + x)
       }
     }
     
     case x => error("Unrecognized fragment: " + x)
   }
   
-  result + '\n'
+  result
 }
 
 def processSection(level: Int, nodes: NodeSeq): String = {
