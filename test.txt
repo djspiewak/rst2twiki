@@ -1,8 +1,10 @@
 .. :mode=rest:
 
-===========
-Test Header
-===========
+=======
+`TOPIC`
+=======
+
+`TOC`
 
 This is some test text in the first paragraph.  Here we have *italic*.  Here we
 have **bold**.  I can do `some linking`_, even with a single word_.  Oh yeah,
