@@ -27,8 +27,12 @@ Another interesting thing would be tags: <like> </this>.
 
 .. image:: http://www.cs.uwm.edu/~dspiewak/daniel-spiewak.png
 
-The above is an image test.  If you don't see it...tough.
+The above is an image test.  If you don't see it...tough.  I can also include an
+image inline, like this: |warning|  You should be able to see a warning icon to
+the left.
 
+
+.. |warning| image:: http://zetkin.htu.tuwien.ac.at/twiki/pub/TWiki/TWikiDocGraphics/warning.gif
 
 .. _some linking: http://www.google.com
 

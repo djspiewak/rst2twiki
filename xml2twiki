@@ -69,6 +69,10 @@ def processParagraph(nodes: NodeSeq): String = {
       result += "%" + contents.text + "%"
     }
     
+    case node @ <image/> => {
+      result += "<img src=\"" + (node \ "@uri").text + "\"/> "
+    }
+    
     case x => error("Unrecognized fragment: " + x)
   }
   
@@ -162,7 +166,7 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     
     case <comment>{_*}</comment> => ()
     
-    case <substitution_definition></substitution_definition> => ()
+    case <substitution_definition>{_*}</substitution_definition> => ()
     
     case x => error("Unrecognized fragment: " + x)
   }
