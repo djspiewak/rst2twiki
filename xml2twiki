@@ -4,6 +4,20 @@ exec scala $0 $@
 
 import scala.xml._
 
+def getBullet(node: Node) = {
+  val enumType = node.attribute("enumtype") map { _.first.text } getOrElse "arabic"
+  
+  enumType match {
+    case "arabic" => "1."
+    case "loweralpha" => "a."
+    case "upperalpha" => "A."
+    case "lowerroman" => "i."
+    case "upperroman" => "I."
+    
+    case x => error("Unrecognized enumtype: " + x)
+  }
+}
+
 def processId(id: String) = {
   if (id.length < 4)
     error("Invalid id (" + id + "). Must have length of at least 4.")
@@ -65,13 +79,12 @@ def processParagraph(nodes: NodeSeq): String = {
   result + '\n'
 }
 
-def processBulletList(level: Int, nodes: NodeSeq): String = {
+def processList(bullet: String, level: Int, nodes: NodeSeq): String = {
   val padding = (0 until level).foldLeft("") { (str, _) => str + ' ' }
   
   var result = ""
   nodes foreach {
     case <list_item>{contents @ _*}</list_item> => {
-      var prefix = padding + "* "
       var first = true
       
       contents foreach {
@@ -79,7 +92,7 @@ def processBulletList(level: Int, nodes: NodeSeq): String = {
           if (!first)
             error("Only one paragraph allowed per list_item")
           
-          result += padding + "* "
+          result += padding + bullet + ' '
           result += {
             val lines = processParagraph(contents).split('\n')
             lines.mkString("\n" + padding + "  ")
@@ -89,7 +102,11 @@ def processBulletList(level: Int, nodes: NodeSeq): String = {
         }
         
         case <bullet_list>{contents @ _*}</bullet_list> => {
-          result += processBulletList(level + 3, contents)
+          result += processList("*", level + 3, contents)
+        }
+        
+        case node @ <enumerated_list>{contents @ _*}</enumerated_list> => {
+          result += processList(getBullet(node), level + 3, contents)
         }
         
         case x => error("Unrecognized fragment: " + x)
@@ -118,7 +135,11 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     }
     
     case <bullet_list>{contents @ _*}</bullet_list> => {
-      result += processBulletList(3, contents) + '\n'
+      result += processList("*", 3, contents) + '\n'
+    }
+    
+    case node @ <enumerated_list>{contents @ _*}</enumerated_list> => {
+      result += processList(getBullet(node), 3, contents) + '\n'
     }
     
     case <literal_block>{contents}</literal_block> => {

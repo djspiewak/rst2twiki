@@ -50,3 +50,53 @@ Header 3
 
 Header 4
 ========
+
+How about some enumerated goodness?
+
+#. Item 1
+#. Item 2
+
+   #. Item 1.1
+   #. Item 1.2
+
+#. Item 3
+
+
+Arabic
+------
+
+1. Item 1
+2. Item 2
+3. Item 3
+
+
+Lowercase Alphabetic
+--------------------
+
+a) Item 1
+b) Item 2
+c) Item 3
+
+
+Uppercase Alphabetic
+--------------------
+
+A) Item 1
+B) Item 2
+C) Item 3
+
+
+Lowercase Roman
+---------------
+
+i) Item 1
+ii) Item 2
+iii) Item 3
+
+
+Uppercase Roman
+---------------
+
+I) Item 1
+II) Item 2
+III) Item 3
