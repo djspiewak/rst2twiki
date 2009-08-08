@@ -36,3 +36,7 @@ And here's the next paragraph!
 
 Header 3
 --------
+
+
+Header 4
+========
