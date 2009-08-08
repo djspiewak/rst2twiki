@@ -4,6 +4,13 @@ exec scala $0 $@
 
 import scala.xml._
 
+def processId(id: String) = {
+  if (id.length < 4)
+    error("Invalid id (" + id + "). Must have length of at least 4.")
+  
+  "" + id(0).toUpperCase + id(1).toLowerCase + id(2).toUpperCase + id.substring(3)
+}
+
 def processParagraph(nodes: NodeSeq): String = {
   var result = ""
   nodes foreach {
@@ -28,7 +35,7 @@ def processParagraph(nodes: NodeSeq): String = {
         val back = node \ "@refuri"
         
         if (back.length == 0)
-          "#" + (node \ "@refid")
+          "#" + processId((node \ "@refid").text)
         else
           back
       }
@@ -112,8 +119,9 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     case node @ <target></target> => {
       val id = node \ "@refid"
       
-      if (id.length > 0)
-        result += '#' + id.text + '\n'
+      if (id.length > 0) {
+        result += '#' + processId(id.text) + '\n'
+      }
     }
     
     case <comment>{_*}</comment> => ()
