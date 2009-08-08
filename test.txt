@@ -25,6 +25,10 @@ We can even try a few special blocks: %TOC%, !test, OutsideBrackets,
 [[InsideBrackets]].  Let's also see what happens when we try an email@address.com
 Another interesting thing would be tags: <like> </this>.
 
+.. image:: http://www.cs.uwm.edu/~dspiewak/daniel-spiewak.png
+
+The above is an image test.  If you don't see it...tough.
+
 
 .. _some linking: http://www.google.com
 
