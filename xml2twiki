@@ -139,7 +139,7 @@ val result = try {
   processSection(0, document)
 } catch {
   case t => {
-    println(t.getMessage)
+    System.err.println(t.getMessage)
     exit(100)
   }
 }
