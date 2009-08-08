@@ -4,18 +4,14 @@ exec scala $0 $@
 
 import scala.xml._
 
-def getBullet(node: Node) = {
-  val enumType = node.attribute("enumtype") map { _.first.text } getOrElse "arabic"
+def getBullet(node: Node) = (node \ "@enumtype").text match {
+  case "arabic" => "1."
+  case "loweralpha" => "a."
+  case "upperalpha" => "A."
+  case "lowerroman" => "i."
+  case "upperroman" => "I."
   
-  enumType match {
-    case "arabic" => "1."
-    case "loweralpha" => "a."
-    case "upperalpha" => "A."
-    case "lowerroman" => "i."
-    case "upperroman" => "I."
-    
-    case x => error("Unrecognized enumtype: " + x)
-  }
+  case x => error("Unrecognized enumtype: " + x)
 }
 
 def processId(id: String) = {
