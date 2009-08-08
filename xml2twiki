@@ -67,7 +67,7 @@ def processBulletList(level: Int, nodes: NodeSeq): String = {
         }
         
         case <bullet_list>{contents @ _*}</bullet_list> => {
-          result += processBulletList(level + 4, contents)
+          result += processBulletList(level + 3, contents)
         }
         
         case x => error("Unrecognized fragment: " + x)
@@ -96,7 +96,7 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     }
     
     case <bullet_list>{contents @ _*}</bullet_list> => {
-      result += processBulletList(0, contents) + '\n'
+      result += processBulletList(3, contents) + '\n'
     }
     
     case <literal_block>{contents}</literal_block> => {
