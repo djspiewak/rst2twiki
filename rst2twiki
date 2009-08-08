@@ -1,0 +1,19 @@
+#!/bin/sh
+# :mode=shellscript:
+
+case $# in
+  0)
+    rst2xml | xml2twiki
+    exit $?
+  ;;
+  
+  1)
+    rst2xml $1 | xml2twiki
+    exit $?
+  ;;
+  
+  *)
+    rst2xml $1 | xml2twiki > $2
+    exit $?
+  ;;
+esac
