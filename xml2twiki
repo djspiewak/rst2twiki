@@ -135,7 +135,14 @@ val input = System.in
 val output = System.out
 
 val (<document>{document @ _*}</document>) = XML.load(input)
-val result = processSection(0, document)
+val result = try {
+  processSection(0, document)
+} catch {
+  case t => {
+    println(t.getMessage)
+    exit(100)
+  }
+}
 
 output.println("<noautolink>")
 output.print(result)
