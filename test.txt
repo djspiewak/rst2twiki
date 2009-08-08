@@ -8,12 +8,20 @@ This is some test text in the first paragraph.  Here we have *italic*.  Here we
 have **bold**.  I can do `some linking`_, even with a single word_.  Oh yeah,
 don't forget ``pre-formatted text``.  We can even preformat a paragraph::
 
-    Here
-    is
-    some
-    code
+    case node @ <target></target> => {
+      val id = node \ "@refid"
+      
+      if (id.length > 0) {
+        result += '#' + processId(id.text) + '\n'
+      }
+    }
 
 And here's paragraph 2!  Dig the nifty "quotes".  Have I forgotten anything?
+
+Yes, I did forget something: special characters!  Let's try a few: &, <, >, !.
+We can even try a few special blocks: %TOC%, !test, OutsideBrackets, 
+[[InsideBrackets]].  Let's also see what happens when we try an email@address.com
+Another interesting thing would be tags: <like> </this>.
 
 
 .. _some linking: http://www.google.com
