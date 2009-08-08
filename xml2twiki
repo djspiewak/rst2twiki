@@ -130,6 +130,8 @@ val output = System.out
 val (<document>{document @ _*}</document>) = XML.load(input)
 val result = processSection(0, document)
 
-output.println(result)
+output.println("<noautolink>")
+output.print(result)
+output.println("</noautolink>")
 
 // :mode=scala:
