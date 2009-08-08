@@ -7,7 +7,9 @@ import scala.xml._
 def processParagraph(nodes: NodeSeq): String = {
   var result = ""
   nodes foreach {
-    case Text(contents) => result += contents
+    case Text(contents) => {
+      result += (contents split "\n" map { _.trim } mkString "\n") + ' '
+    }
     
     case <emphasis>{contents}</emphasis> => {
       result += '*' + contents.text + '*'
