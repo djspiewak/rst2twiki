@@ -1,0 +1,151 @@
+#!/bin/sh
+exec scala $0 $@
+!#
+
+import scala.xml._
+
+def processParagraph(nodes: NodeSeq): String = {
+  var result = ""
+  nodes foreach {
+    case Text(contents) => result += contents
+    
+    case <emphasis>{contents}</emphasis> => {
+      result += '*' + contents.text + '*'
+    }
+    
+    case <strong>{contents}</strong> => {
+      result += "**" + contents.text + "**"
+    }
+    
+    case <literal>{contents}</literal> => {
+      result += "=" + contents.text + "="
+    }
+    
+    case node @ <reference>{contents}</reference> => {
+      val link = {
+        val back = node \ "@refuri"
+        
+        if (back.length == 0)
+          "#" + (node \ "@refid")
+        else
+          back
+      }
+      
+      result += "[[" + link + "][" + contents + "]]"
+    }
+    
+    case x => error("Unrecognized fragment: " + x)
+  }
+  
+  result + '\n'
+}
+
+def processBulletList(level: Int, nodes: NodeSeq): String = {
+  val padding = (0 to level).foldLeft("") { (str, _) => str + ' ' }
+  
+  var result = ""
+  nodes foreach {
+    case <list_item><definition_list>{contents @ _*}</definition_list></list_item> => {
+      contents foreach {
+        case <definition_list_item><term>{contents}</term></definition_list_item> => {
+          result += padding + "* "
+          result += processParagraph(contents).split('\n').mkString("\n" + padding + "  ")
+        }
+        
+        case <definition><bullet_list>{contents @ _*}</bullet_list></definition> => {
+          result += processBulletList(level + 4, contents)
+        }
+        
+        case x => error("Unrecognized fragment: " + x)
+      }
+    }
+    
+    case <list_item>{contents @ _*}</list_item> => {
+      contents(0) match {
+        case <paragraph>{contents @ _*}</paragraph> => {
+          result += padding + "* "
+          result += processParagraph(contents).split('\n').mkString("\n" + padding + "  ")
+        }
+        
+        case x => error("Unrecognized fragment: " + x)
+      }
+      
+      if (contents.length > 1)
+        result += '\n'
+      
+      contents drop 1 foreach {
+        case <paragraph>{contents @ _*}</paragraph> => {
+          result += padding + "  "
+          result += processParagraph(contents).split('\n').mkString("\n" + padding + "  ") + '\n'
+        }
+        
+        case x => error("Unrecognized fragment: " + x)
+      }
+    }
+    
+    case x => error("Unrecognized fragment: " + x)
+  }
+  
+  result + '\n'
+}
+
+def processSection(level: Int, nodes: NodeSeq): String = {
+  if (level > 6) 
+    error("Invalid header level: " + level)
+  
+  var result = ""
+  nodes foreach {
+    case <title>{contents}</title> => {
+      result += (0 to level).foldLeft("---") { (str, _) => str + '+' }
+      result += ' ' + contents.text + '\n'
+    }
+    
+    case <paragraph>{contents @ _*}</paragraph> => {
+      result += processParagraph(contents) + '\n'
+    }
+    
+    case <bullet_list>{contents @ _*}</bullet_list> => {
+      result += processBulletList(0, contents) + '\n'
+    }
+    
+    case <literal_block>{contents}</literal_block> => {
+      result += "<verbatim>\n"
+      result += contents.text + '\n'
+      result += "</verbatim>\n\n"
+    }
+    
+    case <section>{contents @ _*}</section> => {
+      result += processSection(level + 1, contents)
+    }
+    
+    case node @ <target></target> => {
+      val id = node \ "@refid"
+      
+      if (id.length > 0)
+        result += '#' + id.text + '\n'
+    }
+    
+    case <comment>{_*}</comment> => ()
+    
+    case x => error("Unrecognized fragment: " + x)
+  }
+  
+  result
+}
+
+val input = System.in
+val output = System.out
+
+val (<document>{document @ _* }</document>) = XML.load(input)
+val result = try {
+  processSection(1, document)
+} catch {
+  case e => {
+    println(e.getMessage)
+    exit(100)
+  }
+}
+
+output.println(result)
+
+// :mode=scala:
