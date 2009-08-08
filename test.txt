@@ -1,0 +1,38 @@
+.. :mode=rest:
+
+===========
+Test Header
+===========
+
+This is some test text in the first paragraph.  Here we have *italic*.  Here we
+have **bold**.  I can do `some linking`_, even with a single word_.  Oh yeah,
+don't forget ``pre-formatted text``.  We can even preformat a paragraph::
+
+    Here
+    is
+    some
+    code
+
+And here's paragraph 2!  Dig the nifty "quotes".  Have I forgotten anything?
+
+
+.. _some linking: http://www.google.com
+
+.. _word:
+
+Header 2
+========
+
+* Item 1
+* Item 2
+    * Item 1.1
+    * Item 1.2
+* Item 3
+  
+  Here's some inline-text.
+
+And here's the next paragraph!
+
+
+Header 3
+--------
