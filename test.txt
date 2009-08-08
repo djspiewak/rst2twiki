@@ -30,8 +30,6 @@ Header 2
   * Item 1.2
 
 * Item 3
-  
-  Here's some inline-text.
 
 And here's the next paragraph!
 

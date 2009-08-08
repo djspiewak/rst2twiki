@@ -61,15 +61,14 @@ def processBulletList(level: Int, nodes: NodeSeq): String = {
       contents foreach {
         case <paragraph>{contents @ _*}</paragraph> => {
           if (!first)
-            result += '\n'
+            error("Only one paragraph allowed per list_item")
           
-          result += prefix
+          result += padding + "* "
           result += {
             val lines = processParagraph(contents).split('\n')
             lines.mkString("\n" + padding + "  ")
           } + '\n'
           
-          prefix = padding + "  "
           first = false
         }
         
