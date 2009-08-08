@@ -55,6 +55,10 @@ def processParagraph(nodes: NodeSeq): String = {
       result += "[[" + link + "][" + processText(contents.text) + "]]"
     }
     
+    case <title_reference>{contents}</title_reference> => {
+      result += "%" + contents.text + "%"
+    }
+    
     case x => error("Unrecognized fragment: " + x)
   }
   
@@ -104,9 +108,9 @@ def processSection(level: Int, nodes: NodeSeq): String = {
   
   var result = ""
   nodes foreach {
-    case <title>{contents}</title> => {
+    case <title>{contents @ _*}</title> => {
       result += (0 to level).foldLeft("---") { (str, _) => str + '+' }
-      result += ' ' + processText(contents.text) + "\n\n"
+      result += ' ' + processParagraph(contents) + "\n"
     }
     
     case <paragraph>{contents @ _*}</paragraph> => {
@@ -136,6 +140,8 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     }
     
     case <comment>{_*}</comment> => ()
+    
+    case <substitution_definition></substitution_definition> => ()
     
     case x => error("Unrecognized fragment: " + x)
   }
