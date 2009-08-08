@@ -86,7 +86,7 @@ def processSection(level: Int, nodes: NodeSeq): String = {
   nodes foreach {
     case <title>{contents}</title> => {
       result += (0 to level).foldLeft("---") { (str, _) => str + '+' }
-      result += ' ' + contents.text + '\n'
+      result += ' ' + contents.text + "\n\n"
     }
     
     case <paragraph>{contents @ _*}</paragraph> => {
