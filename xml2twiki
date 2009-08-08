@@ -11,19 +11,31 @@ def processId(id: String) = {
   "" + id(0).toUpperCase + id(1).toLowerCase + id(2).toUpperCase + id.substring(3)
 }
 
+def processText(text: String) = {
+  (text flatMap {
+    case '&' => "&amp;"
+    case '<' => "&lt;"
+    case '>' => "&gt;"
+    case '!' => "&#33;"
+    case '%' => "&#37;"
+    case '[' => "&#91;"
+    case c => c.toString
+  }).mkString
+}
+
 def processParagraph(nodes: NodeSeq): String = {
   var result = ""
   nodes foreach {
     case Text(contents) => {
-      result += (contents split "\n" map { _.trim } mkString "\n") + ' '
+      result += (processText(contents) split "\n" map { _.trim } mkString "\n") + ' '
     }
     
     case <emphasis>{contents}</emphasis> => {
-      result += '_' + contents.text + '_'
+      result += '_' + processText(contents.text) + '_'
     }
     
     case <strong>{contents}</strong> => {
-      result += "*" + contents.text + "*"
+      result += "*" + processText(contents.text) + "*"
     }
     
     case <literal>{contents}</literal> => {
@@ -40,7 +52,7 @@ def processParagraph(nodes: NodeSeq): String = {
           back
       }
       
-      result += "[[" + link + "][" + contents + "]]"
+      result += "[[" + link + "][" + processText(contents.text) + "]]"
     }
     
     case x => error("Unrecognized fragment: " + x)
@@ -94,7 +106,7 @@ def processSection(level: Int, nodes: NodeSeq): String = {
   nodes foreach {
     case <title>{contents}</title> => {
       result += (0 to level).foldLeft("---") { (str, _) => str + '+' }
-      result += ' ' + contents.text + "\n\n"
+      result += ' ' + processText(contents.text) + "\n\n"
     }
     
     case <paragraph>{contents @ _*}</paragraph> => {
