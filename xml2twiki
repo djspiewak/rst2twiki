@@ -12,11 +12,11 @@ def processParagraph(nodes: NodeSeq): String = {
     }
     
     case <emphasis>{contents}</emphasis> => {
-      result += '*' + contents.text + '*'
+      result += '_' + contents.text + '_'
     }
     
     case <strong>{contents}</strong> => {
-      result += "**" + contents.text + "**"
+      result += "*" + contents.text + "*"
     }
     
     case <literal>{contents}</literal> => {
