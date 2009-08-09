@@ -119,6 +119,100 @@ def processList(bullet: String, level: Int, nodes: NodeSeq): String = {
   result
 }
 
+sealed trait Occupation
+case object Column extends Occupation
+case object Row extends Occupation
+
+def buildNodeTable(cols: Int, rows: NodeSeq): Array[Array[Either[Node, Occupation]]] = {
+  val back = new Array[Array[Either[Node, Occupation]]](rows.length)
+  
+  def init(r: Int) {
+    if (back(r) == null)
+      back(r) = new Array[Either[Node, Occupation]](cols)
+  }
+  
+  for (r <- 0 until back.length) {
+    init(r)
+    
+    var row = rows(r) \ "entry"
+    for (c <- 0 until back(r).length) {
+      if (back(r)(c) == null) {
+        val entry = row.first
+        row = row drop 1
+        
+        back(r)(c) = Left(entry)
+        
+        val moreCols = if ((entry \ "@morecols").text != "")
+          (entry \ "@morecols").text.toInt
+        else
+          0
+        
+        val moreRows = if ((entry \ "@morerows").text != "")
+          (entry \ "@morerows").text.toInt
+        else
+          0
+        
+        for (i <- 1 to moreCols) {
+          back(r)(c + i) = Right(Column)
+        }
+      
+        for (i <- 1 to moreRows) {
+          init(r + i)
+          
+          for (j <- 0 to moreCols) {
+            back(r + i)(c + j) = Right(Row)
+          }
+        }
+      }
+    }
+  }
+  
+  back
+}
+
+def processTable(cols: Int, nodes: NodeSeq): String = {
+  var result = ""
+  nodes foreach {
+    case <thead><row>{contents @ _*}</row></thead> => {
+      val entries = contents map {
+        case <entry><paragraph>{contents}</paragraph></entry> => {
+          " *" + contents.text.split("\n").mkString(" \\\n") + "* "
+        }
+        
+        case x => error("Unrecognized fragment: " + x)
+      }
+      
+      result += "|" + entries.mkString("|") + "|\n"
+    }
+    
+    case <tbody>{contents @ _*}</tbody> => {
+      val table = buildNodeTable(cols, contents)
+      
+      val rendering = table map { row => 
+        row map {
+          case Left(node) => {
+            processSection(0, node.child).trim.split("\n").mkString(" \\\n")    // need to escape \n
+          }
+          
+          case Right(Column) => ""
+          
+          case Right(Row) => "^"
+        }
+      }
+      
+      for (row <- rendering) {
+        result += "|" + row.mkString("|") + "|\n"
+      }
+    }
+    
+    case <colspec/> => ()   // not implemented by TWiki
+    
+    case x => error("Unrecognized fragment: " + x)
+  }
+  
+  result
+}
+
 def processSection(level: Int, nodes: NodeSeq): String = {
   if (level > 6) 
     error("Invalid header level: " + level)
@@ -164,6 +258,11 @@ def processSection(level: Int, nodes: NodeSeq): String = {
       result += "<img src=\"" + (node \ "@uri").text + "\"/>\n\n"
     }
     
+    case node @ <table><tgroup>{contents @ _*}</tgroup></table> => {
+      val cols = (node \ "tgroup" \ "@cols").text.toInt
+      result += processTable(cols, contents) + '\n'
+    }
+    
     case <comment>{_*}</comment> => ()
     
     case <substitution_definition>{_*}</substitution_definition> => ()
@@ -183,6 +282,7 @@ val result = try {
 } catch {
   case t => {
     System.err.println(t.getMessage)
+    // t.printStackTrace()
     exit(100)
   }
 }
