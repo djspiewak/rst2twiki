@@ -215,6 +215,31 @@ def processTable(cols: Int, nodes: NodeSeq): String = {
   result
 }
 
+def processDefList(nodes: NodeSeq): String = {
+  var result = ""
+  nodes foreach {
+    case node @ <definition_list_item>{_*}</definition_list_item> => {
+      val term = (node \ "term").text
+      
+      if ((node \ "definition" \ "paragraph").length != 1)
+        error("TWiki only supports simple definition text (without any formatting or multiple paragraphs)")
+      
+      (node \ "definition" \ "paragraph") foreach {
+        case <paragraph>{contents}</paragraph> => {
+          result += "   $ " + term + ": "
+          result += contents.text.split("\n").mkString(" ") + '\n'
+        }
+        
+        case x => error("Unrecognized fragment: " + x)
+      }
+    }
+    
+    case x => error("Unrecognized fragment: " + x)
+  }
+  
+  result
+}
+
 def processSection(level: Int, nodes: NodeSeq): String = {
   if (level > 6) 
     error("Invalid header level: " + level)
@@ -263,6 +288,10 @@ def processSection(level: Int, nodes: NodeSeq): String = {
     case node @ <table><tgroup>{contents @ _*}</tgroup></table> => {
       val cols = (node \ "tgroup" \ "@cols").text.toInt
       result += processTable(cols, contents) + '\n'
+    }
+    
+    case <definition_list>{contents @ _*}</definition_list> => {
+      result += processDefList(contents) + '\n'
     }
     
     case <comment>{_*}</comment> => ()
