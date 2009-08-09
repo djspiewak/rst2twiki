@@ -190,9 +190,11 @@ def processTable(cols: Int, nodes: NodeSeq): String = {
       
       val rendering = table map { row => 
         row map {
-          case Left(node) => {
-            processSection(0, node.child).trim.split("\n").mkString(" \\\n")    // need to escape \n
+          case Left(<entry><paragraph>{contents @ _*}</paragraph></entry>) => {
+            processParagraph(contents).trim.split("\n").mkString(" \\\n")    // need to escape \n
           }
+          
+          case Left(x) => error("TWiki tables do not support more than one <paragraph> per cell: " + x)
           
           case Right(Column) => ""
           
