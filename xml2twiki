@@ -18,7 +18,7 @@ def processId(id: String) = {
   if (id.length < 4)
     error("Invalid id (" + id + "). Must have length of at least 4.")
   
-  "" + id(0).toUpperCase + id(1).toLowerCase + id(2).toUpperCase + id.substring(3)
+  ("" + id(0).toUpperCase + id(1).toLowerCase + id(2).toUpperCase + id.substring(3)).replaceAll("-", "")
 }
 
 def processText(text: String) = {
@@ -41,15 +41,15 @@ def processParagraph(nodes: NodeSeq): String = {
     }
     
     case <emphasis>{contents}</emphasis> => {
-      result += '_' + processText(contents.text) + '_'
+      result += "_" + processText(contents.text) + "_ "
     }
     
     case <strong>{contents}</strong> => {
-      result += "*" + processText(contents.text) + "*"
+      result += " *" + processText(contents.text) + "* "
     }
     
     case <literal>{contents}</literal> => {
-      result += "=" + contents.text + "="
+      result += " =" + contents.text + "= "
     }
     
     case node @ <reference>{contents}</reference> => {
@@ -62,7 +62,7 @@ def processParagraph(nodes: NodeSeq): String = {
           back
       }
       
-      result += "[[" + link + "][" + processText(contents.text) + "]]"
+      result += " [[" + link + "][" + processText(contents.text) + "]] "
     }
     
     case <title_reference>{contents}</title_reference> => {
