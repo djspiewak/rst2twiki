@@ -49,7 +49,7 @@ def processParagraph(nodes: NodeSeq): String = {
     }
     
     case <literal>{contents}</literal> => {
-      result += " =" + contents.text + "= "
+      result += " =" + processText(contents.text) + "= "
     }
     
     case node @ <reference>{contents}</reference> => {
